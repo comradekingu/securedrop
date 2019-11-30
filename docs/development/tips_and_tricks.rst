@@ -7,7 +7,7 @@ Using Tor Browser with the development environment
 We strongly encourage sources to use the Tor Browser when they access
 the Source Interface. Tor Browser is the easiest way for the average
 person to use Tor without making potentially catastrophic mistakes,
-makes disabling Javascript easy via the handy NoScript icon in the
+makes disabling JavaScript easy via the handy NoScript icon in the
 toolbar, and prevents state about the source's browsing habits
 (including their use of SecureDrop) from being persisted to disk.
 
@@ -51,7 +51,7 @@ directly, please:
 
      .. code:: sh
 
-        securedrop/requirements/update_python_dependencies
+        make update-pip-dependencies
 
   #. Commit both the ``securedrop/requirements/*.in`` and
      ``securedrop/requirements/*.txt`` files

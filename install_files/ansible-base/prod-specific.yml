@@ -11,10 +11,6 @@ app_hostname: ""
 app_ip: ""
 
 ### Used by the app role ###
-# The securedrop_header_image has to be in the install_files/ansible-base/ or
-# the install_files/ansible-base/roles/app/files/ directory
-# Leave set to empty to use the SecureDrop logo.
-securedrop_header_image: ""
 # The app GPG public key has to be in the install_files/ansible-base/ or
 # install_files/ansible-base/roles/app/files/ directory
 #
@@ -51,6 +47,3 @@ sasl_password: ""
 # To use uncomment the following line and enter the filename between the quotes.
 # e.g. restore_file: "sd-backup-2015-01-15--21-03-32.tar.gz"
 #restore_file: ""
-
-# Custom text that will appear on the source interface
-custom_notification_text: ""

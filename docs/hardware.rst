@@ -6,6 +6,17 @@ successfully install and operate a SecureDrop instance, and recommends
 some specific components that we have found to work well. If you have
 any questions, please email securedrop@freedom.press.
 
+Hardware Overview
+-----------------
+
+For an installation of SecureDrop, you must acquire:
+
+.. include:: includes/pre-install-hardware.txt
+
+In the sections that follow, we provide additional details on each item.
+
+.. _Hardware Recommendations:
+
 Required Hardware
 -----------------
 
@@ -17,14 +28,17 @@ These are the core components of a SecureDrop instance.
 * *Application Server*: 1 physical server to run the SecureDrop web services.
 
 * *Monitor Server*: 1 physical server which monitors activity on the
-  *Application Server* and sends email notifications to an administrator.
+  *Application Server* and sends email notifications to an admin.
 
 * *Network Firewall*: 1 physical computer that is used as a dedicated firewall
   for the SecureDrop servers.
 
+An acceptable alternative that requires more technical expertise is
+to :doc:`configure an existing hardware firewall <network_firewall>`.
+
 We are often asked if it is acceptable to run SecureDrop on
 cloud servers (e.g. Amazon EC2, DigitalOcean, etc.) or on dedicated
-servers in third party datacenters instead of on dedicated hardware
+servers in third-party datacenters instead of on dedicated hardware
 hosted in the organization. This request is generally motivated by a
 desire for cost savings and/or convenience. However: we consider it
 **critical** to have dedicated physical machines hosted within the
@@ -52,12 +66,12 @@ organization for both technical and legal reasons:
 * In addition, attackers with legal authority such as law
   enforcement agencies may (depending on the jurisdiction) be able
   to compel physical access, potentially with a gag order attached,
-  meaning that the 3rd party hosting your servers or VMs may be
+  meaning that the third party hosting your servers or VMs may be
   legally unable to tell you that law enforcement has been given
   access to your SecureDrop servers.
 
 One of the core goals of SecureDrop is to avoid the potential
-compromise of sources through the compromise of third party
+compromise of sources through the compromise of third-party
 communications providers. Therefore, we consider the use of
 virtualization for production instances of SecureDrop to be an
 unacceptable compromise and do not support it. Instead, dedicated
@@ -71,13 +85,13 @@ our support or consent.
 Workstations
 ^^^^^^^^^^^^
 .. note:: SecureDrop depends on the Tails operating system for its bootable USB
-  drives.  The current stable version of Tails, Tails 3.0, no longer supports
-  32-bit computers.
+  drives.  Since the release of Tails 3.0, 32-bit computers are no longer
+  supported.
 
   To see if you have a 64-bit machine, run ``uname -m`` from a terminal.  If you
   see ``x86_64``, then Tails should work on your current machine.  If, on the
   other hand, you see ``i686``, your current machine will not work with Tails
-  3.0.  For more details, see `the Tails website
+  3.0 or greater.  For more details, see `the Tails website
   <https://tails.boum.org/news/version_3.0/index.en.html#index3h3>`_.
 
 These components are necessary to do the initial installation of
@@ -120,14 +134,16 @@ We also recommend buying two additional USBs to use as bootable backups of the
 
 **Two-factor authenticator**: Two-factor authentication is used when connecting
 to different parts of the SecureDrop system. Each admin and each journalist
-needs a two-factor authenticator. We currently support two options for t
-wo-factor authentication:
+needs a two-factor authenticator. We currently support two options for
+two-factor authentication:
 
 * Your existing smartphone with an app that computes TOTP codes
-  (e.g. `Google Authenticator <https://support.google.com/accounts/answer/1066447?hl=en>`__).
+  (e.g. FreeOTP `for Android <https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp>`__ and `for iOS <https://itunes.apple.com/us/app/freeotp-authenticator/id872559395>`__).
 
 * A dedicated hardware dongle that computes HOTP codes (e.g. a
   `YubiKey <https://www.yubico.com/products/yubikey-hardware/yubikey/>`__).
+
+.. include:: includes/otp-app.txt
 
 **Transfer Device(s)**: You need a mechanism to transfer encrypted submissions
 from the **Journalist Workstation** to the *SVS* to decrypt and view them. The
@@ -252,65 +268,132 @@ Specific Hardware Recommendations
 Application and Monitor Servers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The Intel NUC (Next Unit of Computing) is a capable, cheap, quiet, and
-low-powered device that can be used for the SecureDrop servers. There
-are a `variety of
-models <https://www-ssl.intel.com/content/www/us/en/nuc/products-overview.html>`__
-to choose from. We recommend the
-`D54250WYK <https://www-ssl.intel.com/content/www/us/en/nuc/nuc-kit-d54250wyk.html>`__
-because it has a mid-range CPU (Intel i5), the common Mini DisplayPort
-connector for the monitor, and USB 3.0 ports for faster OS installation
-and data transfer.
+We currently recommend the Gigabyte BRIX, Intel NUC, or Mac Mini for
+SecureDrop servers.
 
-Conveniently (for the paranoid), it supports wireless networking (Wifi
-and Bluetooth) through *optional* expansion cards not included by
-default - which means you don't have to spend time ripping out the
-wireless hardware before beginning the installation.
+.. note:: If using non-recommended hardware, ensure you remove as much
+    extraneous hardware as physically possible from your servers. This
+    could include: speakers, cameras, microphones, fingerprint readers,
+    wireless, and Bluetooth cards.
 
-.. note:: If you purchase the NUC from `Amazon
-	  <http://www.amazon.com/Intel-D54250WYK-DisplayPort-Graphics-i5-4250U/dp/B00F3F38O2/>`__,
-	  make sure you click "With Powercord" to have one included in
-	  the package.
+Gigabyte BRIX
+~~~~~~~~~~~~~
 
-The NUCs come as kits, and some assembly is required. You will
-need to purchase the RAM and hard drive separately for each NUC and
-insert the cards into the NUC before it can be used. We recommend:
+The Gigabyte BRIX series is an inexpensive, quiet, low-power device that
+can be used for SecureDrop servers. There are a
+`variety of models <http://www.gigabyte.us/Mini-PcBarebone/BRIX>`__ to choose
+from; we recommend the GB-BXi5-5575. It has a mid-range CPU (the 5th
+generation Intel i5), a full-size HDMI port for a monitor, and four USB 2 ports.
+If you select a different model series (such as the GB-BSi5H) carefully
+verify that it uses the 5th generation Intel i5. Newer generation CPUs will
+**not** work with SecureDrop.
 
--  2 `240 GB SSDs <http://www.amazon.com/dp/B00BQ8RKT4/>`__
--  A `4 GB (4GBx2) memory
-   kit <http://www.amazon.com/Crucial-PC3-12800-204-Pin-Notebook-CT2CP25664BF160B/dp/B005MWQ6WC/>`__
+The GB-BXi5-5575 supports wireless and Bluetooth through a removable card. This
+removable card is preferable, since you want neither WiFi nor Bluetooth. You
+can open the BRIX by removing the screws from the underside of the computer; the
+wireless card has one small screw you need to remove and two small connectors.
 
+The BRIXs come as kits, and some assembly is required. You will need to purchase
+the RAM and hard drive separately for each BRIX and insert both into the machine
+before it can be used. We recommend:
+
+-  2x 240 GB SSDs (2.5")
+-  1x memory kit of 2x4GB sticks (DIMM DDR3 1866MHz)
    -  You can put one 4GB memory stick in each of the servers.
 
-.. note:: The D54250WYK has recently been `EOL'ed by Intel
-	  <http://ark.intel.com/products/series/70407/Intel-NUC-Boards-and-Kits>`__.
-	  Availability and prices may be subject to change. We are
-	  working on analyzing alternative recommendations, but there
-	  are no immediately obvious alternatives that share the
-	  benefits of the D54250WYK (primarily, the lack of integrated
-	  wireless networking hardware).
+Intel NUC
+~~~~~~~~~
 
-.. note:: An earlier release of SecureDrop (0.2.1) was based on Ubuntu
-	  12.04.1 (precise). We encountered issues installing this
-	  version of Ubuntu on some types of Intel NUCs. The problem
-	  manifested after installing Ubuntu on the NUC. The
-	  installation would complete, but rebooting after
-	  installation would not succeed.
+The Intel NUC (Next Unit of Computing) is an inexpensive, quiet, low-power
+device that can be used for the SecureDrop servers. There are a
+`variety of models <https://www-ssl.intel.com/content/www/us/en/nuc/products-overview.html>`__
+to choose from. We recommend the
+`NUC5i5MYHE <https://www.intel.com/content/www/us/en/products/boards-kits/nuc/kits/nuc5i5myhe.html>`__
+because it has a mid-range CPU (the 5th generation Intel i5), a Mini
+DisplayPort port for a monitor, and two USB 3.0 ports for faster OS
+installation and data transfer.
 
-	  We have not encountered this or any similar problems in
-	  testing the current release series (0.3.x) with the Intel
-	  NUCs. Since 0.3 is based on Ubuntu 14.04.1 (trusty), we
-	  believe the issue has been resolved in the newer release of
-	  Ubuntu.
+The NUC5i5MYHE supports wireless through *optionally-purchased* expansion cards.
+This means the wireless components aren't soldered on which would make them
+nearly impossible to remove without inflicting damage to the NUC. This optional
+support is preferable, since you want neither WiFi nor Bluetooth.
 
-	  If you do encounter issues booting Ubuntu on the NUCs, try
+The NUCs come as kits, and some assembly is required. You will need to purchase
+the RAM and hard drive separately for each NUC and insert both into the NUC
+before it can be used. We recommend:
+
+-  2x 240 GB SSDs (2.5")
+-  1x memory kit of 2x4GB sticks
+   -  You can put one 4GB memory stick in each of the servers.
+
+.. note:: The D54250WYK we previously recommended has now entered `End of Life`
+    and `End of Interactive Support` statuses. If you're currently using this
+    model for your SecureDrop setup, and need hardware support, you'll need to
+    consult the `support community <https://communities.intel.com/community/tech/nuc>`__ forum.
+
+.. note:: If you encounter issues booting Ubuntu on the NUCs, try
 	  updating the BIOS according to `these instructions
 	  <http://arstechnica.com/gadgets/2014/02/new-intel-nuc-bios-update-fixes-steamos-other-linux-booting-problems/>`__.
 
-.. note:: Some BIOS versions on the NUC will cause the server to
-	  `brick itself <https://communities.intel.com/message/359708>`__ if
-	  the device attempts to suspend. Some suggestions include disabling
-	  suspend in the BIOS as well as OS options like "wake on LAN".
+.. caution:: Some older NUC BIOS versions will cause the server to `brick itself <https://communities.intel.com/message/359708>`__ if the device
+    attempts to suspend. This has `since been fixed <https://communities.intel.com/message/432692#432692>`__
+    in a BIOS update. See these `release notes <https://downloadmirror.intel.com/26263/eng/RY_0359_ReleaseNotes.pdf>`__ (PDF) for more details.
+
+Mac Minis
+~~~~~~~~~
+
+Other than the NUCs we also recommend the 2014 Apple Mac Minis (part number MGEM2)
+for installing SecureDrop. Mac Minis have removable wireless cards that you
+should remove. This requires a screwdriver for non-standard
+`TR6 Torx security screws <https://www.amazon.com/Mini-Torx-Security-Screwdriver-Tool/dp/B01BG8P2Q6>`__.
+
+However, on the first install of Ubuntu Server
+the Mac Minis will not boot: this is a known and
+`documented <https://nsrc.org/workshops/2015/nsrc-icann-dns-ttt-dubai/raw-attachment/wiki/Agenda/install-ubuntu-mac-mini.htm#your-mac-does-not-boot>`__
+issue. The workaround requires a one-time modification after you
+install Ubuntu but before you move on to
+`install SecureDrop <https://docs.securedrop.org/en/stable/install.html>`__.
+After Ubuntu is installed, for each Mac Mini you should:
+
+#. Connect your Ubuntu installation media (USB drive or CD)
+#. Boot your Mac Mini while holding down the **Option** key.
+#. Select **EFI Boot** and select **Rescue a broken system** at the Ubuntu
+   install screen.
+#. Accept the default options for the install steps until you get to **Device to
+   use as root file system**.
+#. At the **Device to use as root file system** prompt, select
+   ``/dev/mon-vg/root`` or ``/dev/app-vg/root`` for the monitor and application
+   servers respectively.
+#. Select to mount the separate ``/boot`` partition.
+#. Select **Execute a shell in** ``/dev/mon-vg/root`` (or ``/dev/app-vg/root``)
+   and select **Continue**.
+#. You should now be at a rescue Linux shell. Type ``efibootmgr``, and you
+   should see the following:
+
+    .. code::
+
+        BootCurrent: 0000
+        Timeout: 5 seconds
+        BootOrder: 0080
+        Boot0000* ubuntu
+        Boot0080* Mac OS X
+        BootFFFF*
+
+#. Type ``efibootmgr -o 00``.
+#. Again type ``efibootmgr``. This time you should see the following:
+
+    .. code::
+
+        BootCurrent: 0000
+        Timeout: 5 seconds
+        BootOrder: 0000
+        Boot0000* ubuntu
+        Boot0080* Mac OS X
+        BootFFFF*
+
+#. Type ``exit``.
+#. Select **Reboot the system** and remove the installation media.
+   Your server should now boot to Ubuntu by default.
 
 Secure Viewing Station (SVS)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -338,7 +421,7 @@ recommend taping over with opaque masking tape.
 If you choose to use an Intel NUC that differs from our recommended
 model, make sure you use one that offers wireless as an **option**. If the model
 is advertised as having "integrated wireless", such as the `NUC5i5RYK`, this
-means it's built into the motherboard, making it physically irremovable, and
+could mean it's built into the motherboard, making it physically irremovable, and
 attempting to do so would risk damaging the unit; instead, look for attributes like
 `M.2 22×30 slot and wireless antenna pre-assembled (for wireless card support)`,
 as advertised by the `NUC5i5MYHE` that we recommend.
@@ -346,7 +429,7 @@ as advertised by the `NUC5i5MYHE` that we recommend.
 Tails USBs
 ^^^^^^^^^^
 
-.. note:: The upcoming version of Tails, Tails 3.0, will no longer support 32-bit computers.
+.. note:: Tails no longer supports 32-bit computers.
 	Please see the note in the `Workstations`_ section for more details.
 
 We *strongly recommend* getting USB 3.0-compatible drives to run Tails
@@ -394,6 +477,8 @@ ports (the recommended firewall has 4 ports). Any old switch with more
 than 3 ports will do, such as the `5-port Netgear ProSafe Ethernet
 Switch <http://www.amazon.com/NETGEAR-ProSafe-Gigabit-Ethernet-Desktop/dp/B0000BVYT3/>`__.
 
+.. _printers_tested_by_fpf:
+
 Printers
 ^^^^^^^^
 
@@ -408,13 +493,26 @@ To assist you, we have compiled the following partial list of
 airgap-safe printers that have been tested and are known to work with
 Tails:
 
-+-------------------------+----------------+------------------+--------------------+--------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Model                   | Testing Date   | Tails Versions   | Price (new)        | Price (used)       | Notes                                                                                                                                                       |
-+=========================+================+==================+====================+====================+=============================================================================================================================================================+
-| HP LaserJet 400 M401n   | 06/2015        | 1.4              | $178.60 (Amazon)   | $115.00 (Amazon)   | Monochrome laser printer. Heavy (10 lbs.) When adding the printer in Tails, you need to set "Make and model" to "HP LaserJet 400 CUPS+Gutenprint v5.2.9".   |
-+-------------------------+----------------+------------------+--------------------+--------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| HP Deskjet 6940         | 04/2015        | 1.3.2            | $639.99 (Amazon)   | $196.99 (Amazon)   | Monochrome Inkjet printer                                                                                                                                   |
-+-------------------------+----------------+------------------+--------------------+--------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
++-------------------------+--------------+----------------+--------------------+
+| Printer Model           | Testing Date | Tails Versions | Printer Type       |
++=========================+==============+================+====================+
+| HP DeskJet F4200        | 06/2017      | 3.0            | Color Inkjet       |
++-------------------------+--------------+----------------+--------------------+
+| HP DeskJet 1112         | 06/2017      | 3.0            | Color Inkjet       |
++-------------------------+--------------+----------------+--------------------+
+| HP DeskJet 1110         | 08/2017      | 3.1            | Color Inkjet       |
++-------------------------+--------------+----------------+--------------------+
+| HP LaserJet 400 M401n   | 06/2015      | 1.4            | Monochrome Laser   |
++-------------------------+--------------+----------------+--------------------+
+| HP DeskJet 6940         | 04/2015      | 1.3.2          | Monochrome Injket  |
++-------------------------+--------------+----------------+--------------------+
+
+.. note:: We've documented both the HP DeskJet F4200 and HP LaserJet 400 M401n
+          with screenshots of the installation process, in our section on
+          :ref:`printer_setup_in_tails`. While the F4200 installed
+          automatically, the 400 M401n required that we set "Make and model" to
+          "HP LaserJet 400 CUPS+Gutenprint v5.2.9" when manually configuring the
+          drivers.
 
 If you know of another model of printer that fits our requirements and
 works with Tails, please submit a pull request to add it to this list.

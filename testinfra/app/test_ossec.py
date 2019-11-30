@@ -1,22 +1,16 @@
+import os
 import re
 import pytest
 
 sdvars = pytest.securedrop_test_vars
+testinfra_hosts = ["app", "app-staging"]
 
-# Currently failing in CI under remote hosts
-# Looks like vagrant is currently appending hostname to local IP
-@pytest.mark.xfail
-def test_hosts_files(File, SystemInfo):
-    """ Ensure host localhost is mapping to servername """
-    f = File('/etc/hosts')
-    assert f.contains('^127.0.0.1\.*mon-{0}$'.format(env))
 
 def test_hosts_files(File, SystemInfo):
     """ Ensure host files mapping are in place """
     f = File('/etc/hosts')
 
-    hostname = SystemInfo.hostname
-    mon_ip = sdvars.mon_ip
+    mon_ip = os.environ.get('MON_IP', sdvars.mon_ip)
     mon_host = sdvars.monitor_hostname
 
     assert f.contains('^127.0.0.1\s*localhost')
@@ -24,9 +18,11 @@ def test_hosts_files(File, SystemInfo):
                                                                     mon_ip,
                                                                     mon_host))
 
+
 def test_hosts_duplicate(Command):
     """ Regression test for duplicate entries """
     assert Command.check_output("uniq --repeated /etc/hosts") == ""
+
 
 def test_ossec_agent_installed(Package):
     """ Check that ossec-agent package is present """
@@ -38,8 +34,8 @@ def test_ossec_agent_installed(Package):
 def test_ossec_keyfile_present(File, Command, Sudo, SystemInfo):
     """ ensure client keyfile for ossec-agent is present """
     pattern = "^1024 {} {} [0-9a-f]{{64}}$".format(
-                                        sdvars.app_hostname,
-                                        sdvars.app_ip)
+                                    sdvars.app_hostname,
+                                    os.environ.get('APP_IP', sdvars.app_ip))
     regex = re.compile(pattern)
 
     with Sudo():

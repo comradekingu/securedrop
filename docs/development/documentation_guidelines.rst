@@ -29,11 +29,19 @@ To get started editing the docs:
 
       make docs
 
+If you have the :ref:`Development VM <development_vm>` running, you should run
+``make docs`` from within the ``/vagrant`` directory inside the VM, otherwise
+the forwarded port on 8000 will collide with sphinx-autobuild process running
+on localhost.
+
 You can then can browse the documentation at http://127.0.0.1:8000/.
 As you make changes, the docs will automatically rebuild in the browser
 window, so you don't need to refresh the page manually.
 
-You can also check the docs for formatting violations by running the linting
+Testing documentation changes
+-----------------------------
+
+You can check the docs for formatting violations by running the linting
 option:
 
    .. code:: sh
@@ -43,14 +51,38 @@ option:
 The ``make docs`` command will display warnings, but will still build the
 documentation if formatting mistakes are found. Using ``make docs-lint``
 will convert any warnings to errors, causing the build to fail.
-The CI tests will automatically perform linting via the same command.
+The :ref:`CI tests<ci_tests>` will automatically perform linting via the same
+command.
+
+The :ref:`CI tests<ci_tests>` by default create staging servers to test the
+application code. If your PR only makes documentation changes, you should
+prefix the branch name with ``docs-`` to skip the staging run. Project
+maintainers will still need to approve the PR prior to merge, and the linting
+checks will also still run.
+
+Updating screenshots
+--------------------
+
+The user guides for SecureDrop contain screenshots of the web applications.
+To update these screenshots automatically you can run:
+
+.. code:: sh
+
+   make -C securedrop images update-user-guides
+
+This will generate screenshots for each image in the web application and copy
+them to the folder under ``docs/images/manual/screenshots`` where they will
+replace the existing screenshots. Stage for commit any screenshots you wish to
+update. If you wish to update all screenshots, simply stage for commit all
+changed files in that directory.
 
 Integration with Read the Docs
 ------------------------------
 
+.. include:: ../includes/docs-branches.txt
+
 Our documentation is built and hosted by `Read the Docs`_ and is available at
-https://securedrop.readthedocs.org. The "latest" documentation is currently
-based on the **develop** branch of the `upstream Git repository`_. We use a
+https://docs.securedrop.org. We use a
 `webhook`_ so the docs are rebuilt automatically when commits get pushed to the
 branch.
 

@@ -111,14 +111,24 @@ mounted and ready to access.
 
 |Backup and TailsData Mounted|
 
-Open a Nautilus window with administrator privileges by going to
-**Applications** ▸ **System Tools** ▸ **Root Terminal**.
+Open a Nautilus window with admin privileges by going to
+**Applications** ▸ **System Tools** ▸ **Terminal**.
 
-|Root Terminal|
+|Open Terminal|
 
-Type ``nautilus`` at the terminal prompt and hit enter:
+Type ``gksu nautilus`` at the terminal prompt and hit enter. You'll need to type
+your admin password.
 
-|Start Nautilus|
+|Start gksu nautilus|
+
+.. note::
+  When you run ``gksu nautilus``, you may run into an error where Nautilus
+  complains that it can't create a required folder. If that happens, just click
+  OK and continue normally.
+
+  If a Nautilus window *doesn't* come up, it might be because an admin
+  password wasn't set. If that's the case, you'll need to restart and set an
+  admin password before continuing.
 
 .. warning::
             Make sure you use keep the `Terminal` window open while you perform
@@ -144,16 +154,15 @@ for each device you backup.
 Finally, once you have completed the steps described in this section for each
 USB drive, unmount the Backup partition and store the drive somewhere safely.
 
-.. |Nautilus| image:: images/upgrade_to_tails_3x/nautilus_start.png
 .. |Browse to Places Computer| image:: images/upgrade_to_tails_3x/browse_to_places_computer.png
 .. |Click Cogs| image:: images/upgrade_to_tails_3x/click_the_button_with_cogs.png
 .. |Fill in Passphrase| image:: images/upgrade_to_tails_3x/fill_in_passphrase.png
 .. |Format Backup Drive| image:: images/upgrade_to_tails_3x/fill_out_as_follows.png
-.. |Start Nautilus| image:: images/upgrade_to_tails_3x/nautilus_start.png
+.. |Start gksu nautilus| image:: images/upgrade_to_tails_3x/gksu_nautilus.png
 .. |Make Folders for All Drives| image:: images/upgrade_to_tails_3x/make_folders_for_all_drives.png
 .. |Backup and TailsData Mounted| image:: images/upgrade_to_tails_3x/backup_and_tailsdata_mounted.png
 .. |Applications Utilities Disks| image:: images/upgrade_to_tails_3x/navigate_to_applications.png
-.. |Root Terminal| image:: images/upgrade_to_tails_3x/root_terminal.png
+.. |Open Terminal| image:: images/upgrade_to_tails_3x/open_terminal.png
 .. |Select the Disk| image:: images/upgrade_to_tails_3x/select_the_disk.png
 .. |Two Partitions Appear| image:: images/upgrade_to_tails_3x/two_partitions_appear.png
 
@@ -202,65 +211,38 @@ Once complete, you should see a success message:
 .. |Confirm Upgrade| image:: images/upgrade_to_tails_3x/confirm_upgrade.png
 .. |Installation Complete| image:: images/upgrade_to_tails_3x/installation_complete.png
 
-4. Upgrade the Tails Persistence Configuration
-----------------------------------------------
+4. Upgrade KeePassX Database
+----------------------------
 
-Due to changes in Tails 3.x it is essential you upgrade the custom persistence
-configuration previously set up for your *Admin Workstation* and *Journalist
-Workstation* drives:
+Your password databases will be in KeePass 1 database format (a file that ends
+in ``.kdb``). You should upgrade them to the new format by following these steps:
 
-  #. Boot into each Tails volume.
-  #. Open a terminal |Terminal| and navigate to the root of the SecureDrop git
-     directory: ``cd ~/Persistent/securedrop``.
-  #. Fetch the latest SecureDrop sources ``git fetch --all``.
-  #. Check out and verify the latest release tag following the instructions in
-     :ref:`Set up the Admin Workstation <Checkout and Verify the Current Release
-     Tag>`. You should already have the **SecureDrop Release Signing Key**
-     stored by Tails persistence, so you won't need to download it again.
-  #. Run the command ``./securedrop-admin tailsconfig``. If you are working on a
-     *Journalist Workstation* and did not previously copy the the
-     ``app-journalist-aths`` and ``app-source-ths`` from the *Admin Workstation*
-     via the *Transfer Device* to
-     ``~/Persistent/securedrop/install_files/ansible-base`` expect to be
-     prompted for this information.
+   #. Open KeePassX.
+   #. Navigate to **Database** and then **Import KeePass 1 database**.
+   #. Select your password database and click **Open**.
+   #. Put in a master password if necessary to open the database.
+   #. Then navigate to **Database** and then **Save database as** to save the
+      database in its new format (a file ending in ``.kdbx``) in the same folder
+      as the previous database.
 
+5. Upgrade Secure Viewing Stations
+----------------------------------
 
-.. |Terminal| image:: images/terminal.png
+Due to a change in Tails 3, if you wish to preserve the names of files when
+decrypting, you'll need to apply the following fix by opening a **Terminal** on
+the *Secure Viewing Station* and typing the following commands:
 
-5. Verify the Upgrades
-----------------------
+.. include:: includes/tails-svs-nautilus.txt
 
-Verify the Journalist Workstation and SVS USB Drives Are Successfully Updated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+6. Upgrade SecureDrop to 0.4.x
+------------------------------
 
-After you upgrade your `Journalist Workstation` and `Secure Viewing Station`,
-do the following to make sure they were upgraded successfully.
+Now that you've upgraded the Tails workstation to Tails 3, follow the
+:doc:`0.4.x Upgrade Guide <upgrade/0.3.x_to_0.4>` to configure the Tails
+environment to access your SecureDrop instance. You will need to perform
+further upgrade steps for the *Admin* and *Journalist Workstations*.
 
-  #. Submit a test document to the source interface.
-  #. Log in to the journalist interface.
-  #. Download the test document.
-  #. Transfer the test document over to the SVS.
-  #. Decrypt the test document.
-  #. Delete the submission.
-
-If you are able to successfully download and decrypt your test submission, then
-your upgrade was successful!
-
-Verify the Admin Workstation USB Drive Was Successfully Updated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-After you upgrade your `Admin Workstation`, ensure that you are able to SSH
-into both servers. Remember you can use the following shortcuts:
-
-.. code:: sh
-
-   ssh mon
-   ssh app
-
-Destroy the Backup or Move It to a Safe Location
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-At this point, you should move your backup drive to a safe location (if you
+After upgrading to 0.4.x, you should move your backup drive to a safe location (if you
 used a strong passphrase). Else, you should destroy the backup drive following
 the instructions `here <upgrade_to_tails_2x.html#wipe-the-backup-device>`__.
 

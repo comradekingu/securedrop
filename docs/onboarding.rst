@@ -4,7 +4,7 @@ Onboard Journalists
 Congratulations! You've successfully installed SecureDrop.
 
 At this point, the only person who has access to the system is the
-administrator. In order to grant access to journalists, you will need
+admin. In order to grant access to journalists, you will need
 to do some additional setup for each individual journalist.
 
 In order to use SecureDrop, each journalist needs two things:
@@ -55,8 +55,8 @@ used to create a Tails USB with persistence for the Admin Tails USB,
 as documented in the :doc:`Tails Setup Guide <set_up_tails>`.
 
 Once you're done, boot into the new Journalist Tails USB on the
-*Journalist Workstation*. Enable persistence and set an administrator
-password before continuing with the next section.
+*Journalist Workstation*. Enable persistence and set an admin
+passphrase before continuing with the next section.
 
 Set up automatic access to the Journalist Interface
 ---------------------------------------------------
@@ -64,7 +64,7 @@ Set up automatic access to the Journalist Interface
 Since the Journalist Interface is an ATHS, we need to set up the
 Journalist Tails USB to auto-configure Tor just as we did with the
 Admin Tails USB. The procedure is essentially identical, except the
-SSH configuration will be skipped, since only Administrators need
+SSH configuration will be skipped, since only admins need
 to access the servers over SSH.
 
 .. tip:: Copy the files ``app-journalist-aths`` and ``app-source-ths`` from
@@ -106,7 +106,7 @@ Add an account on the Journalist Interface
 
 Finally, you need to add an account on the Journalist Interface so the journalist
 can log in and access submissions. See the section on :ref:`Adding Users` in
-the Administrator Guide.
+the admin Guide.
 
 Import GPG keys for journalists with access to SecureDrop to the SVS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,3 +127,47 @@ the file manager |Nautilus| and double-click on the public key to import it.
 
 .. |Nautilus| image:: images/nautilus.png
 .. |Importing Journalist GPG Keys| image:: images/install/importkey.png
+
+Verify Journalist Setup
+-----------------------
+
+Once the journalist device and account have been provisioned, then the
+admin should run through the following steps with *each journalist* to
+verify the journalist is set up for SecureDrop.
+
+The journalist should verify that they:
+
+1. Have their own *Journalist Tails USB* that they have verified they are able
+   to boot on the *Journalist Workstation*.
+
+.. note:: It is important that they test on the same *Journalist Tails USB* and
+   the same *Journalist Workstation* they will be using on a day to day basis.
+   Issues may arise due to differences in USB drives or laptop models.
+
+2. Verify they are able to decrypt the persistent volume on the *Journalist
+   Tails USB*.
+
+3. Ensure that they can connect to and login to the *Journalist Interface*.
+
+4. Ensure that they have a *Data Transfer Device* with a saved passphrase.
+
+5. Verify they have access to the *Secure Viewing Station* they will be using by
+   plugging in the *SVS USB*, booting, and verifying they can decrypt the
+   persistent volume.
+
+.. note:: Again, it is important that they test on the same *SVS Tails USB* and
+   the same *Secure Viewing Station* they will be using on a day to day basis.
+
+6. Verify the submission private key is present in the *Secure Viewing Station*
+   persistent volume by clicking the clipboard icon |gpgApplet| in the top right
+   corner of the Tails desktop and selecting “Manage Keys”. When clicking
+   “GnuPG keys” the key should be present.
+
+.. tip:: The journalist should have all the credentials used in this checklist
+   saved in the KeePassX database stored in the persistent volume of the *Journalist
+   Workstation*.
+
+At this point, the journalist has verified they have the devices and credentials
+they need and can proceed to a walkthrough of the entire SecureDrop workflow.
+
+.. |gpgApplet| image:: images/gpgapplet.png

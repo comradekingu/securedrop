@@ -5,10 +5,11 @@ import os
 from os.path import abspath, dirname, exists, isdir, join, realpath
 import shutil
 import subprocess
+import threading
 
 import gnupg
 
-os.environ['SECUREDROP_ENV'] = 'test'
+os.environ['SECUREDROP_ENV'] = 'test'  # noqa
 import config
 import crypto_util
 from db import init_db, db_session
@@ -51,17 +52,20 @@ def setup():
     init_db()
     # Do tests that should always run on app startup
     crypto_util.do_runtime_tests()
-    # Start the Python-RQ worker if it's not already running
-    if not exists(TEST_WORKER_PIDFILE):
-        subprocess.Popen(["rqworker",
-                          "-P", config.SECUREDROP_ROOT,
-                          "--pid", TEST_WORKER_PIDFILE])
 
 
 def teardown():
+    # make sure threads launched by tests complete before
+    # teardown, otherwise they may fail because resources
+    # they need disappear
+    for t in threading.enumerate():
+        if t.is_alive() and not isinstance(t, threading._MainThread):
+            t.join()
     db_session.remove()
+    shutil.rmtree(config.TEMP_DIR)
     try:
         shutil.rmtree(config.SECUREDROP_DATA_ROOT)
+        assert not os.path.exists(config.SECUREDROP_DATA_ROOT)  # safeguard for #844
     except OSError as exc:
         if 'No such file or directory' not in exc:
             raise

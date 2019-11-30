@@ -33,7 +33,7 @@ reboots, the Tails instance must have persistence enabled (specifically, the
 .. note:: Starting in version 0.3.7, SecureDrop requires Tails 2.x or greater.
 
 To install the auto-connect configuration, start by navigating to the directory
-with these scripts, and run the install script:
+with these scripts (``~/Persistent/securedrop/``), and run the install script:
 
 .. code:: sh
 
@@ -69,4 +69,4 @@ Set up two-factor authentication for the Admin
 The SecureDrop servers should always be accessed over SSH from the Admin
 Workstation. In the event of a connectivity problem, Admins can log in
 directly to the servers by attaching a keyboard and a display. In order to do
-so, you will need to :doc:`configure 2FA TOTP access <google_authenticator>`.
+so, you will need to :doc:`configure 2FA TOTP access <servers_2fa>`.

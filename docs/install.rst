@@ -4,11 +4,11 @@ Install SecureDrop
 Install Prerequisites
 ----------------------
 
-SecureDrop has some dependencies that need to be loaded onto the admin tails
-stick prior to the installation of the server.
+SecureDrop has some dependencies that need to be loaded onto the *Admin
+Workstation* prior to the installation of the server.
 
-To load these dependencies, from the base of the SecureDrop repo run the
-following commands:
+To load these dependencies, from the base of the SecureDrop repository
+(``~/Persistent/securedrop/``) run the following commands:
 
 .. code:: sh
 
@@ -17,7 +17,35 @@ following commands:
 The package installation will complete in approximately 10 minutes, depending
 on network speed and computing power.
 
+ .. note :: Occasionally this command times out due to network latency issues.
+    You should be able to re-run the command and complete the setup. If you run
+    into a problem, try removing the ``~/Persistent/securedrop/.venv/``
+    directory and running the command again. The command should only be run as
+    the ``amnesia`` user.
+
 .. _configure_securedrop:
+
+Localization of the source and journalist interfaces
+----------------------------------------------------
+
+The source and journalist interface are translated in the following
+languages:
+
+* German (de_DE)
+* Spanish (es_ES)
+* French (fr_FR)
+* Italian (it_IT)
+* Norwegian (nb_NO)
+* Dutch (nl)
+* Portuguese, Brasil (pt_BR)
+* Turkish (tr)
+* Chinese, Traditional (zh_Hant)
+
+During the installation you will be given the opportunity to choose the
+list of supported languages to display, using the code shown in
+parentheses. When the source interface is displayed in French (for
+instance), people submitting documents will expect a journalist fluent
+in French is available to read them and followup.
 
 Configure the Installation
 --------------------------
@@ -38,19 +66,13 @@ continuing:
    Guide <ossec_alerts>`.
 -  The first username of a journalist who will be using SecureDrop (you
    can add more later)
--  The username of the system administrator
--  (Optional) An image to replace the SecureDrop logo on the *Source
-   Interface* and *Journalist Interface*
-
-   -  Recommended size: ``500px x 450px``
-   -  Recommended format: PNG
+-  The username of the system admin
 
 You will have to copy the following required files to
 ``install_files/ansible-base``:
 
 -  SecureDrop Submission Key public key file
 -  Admin GPG public key file (for encrypting OSSEC alerts)
--  (Optional) Custom header image file
 
 The SecureDrop Submission Key should be located on your *Transfer
 Device* from earlier. It will depend on the location where the USB stick
@@ -70,18 +92,9 @@ match your environment: ::
 The script will automatically validate the answers you provided, and display
 error messages if any problems were detected. The answers you provided will be
 written to the file ``install_files/ansible-base/group_vars/all/site-specific``,
-which you can edit manually to provide further customization.
-
-For example, you can have custom notification text be displayed on the
-source interface. The source interface with a custom notification message is
-shown here (the custom notification appears after the bolded "Note:"):
-
-|Custom notification|
-
-This custom notification can be configured by providing the desired message in
-``custom_notification_text`` in ``install_files/ansible-base/group_vars/all/site-specific``.
-For example, this can be used to notify potential sources that an instance is for
-testing purposes only.
+which you can edit in case of errors such as typos before rerunning the script.
+You can also run ``./securedrop-admin sdconfig --force`` to remove your entire
+configuration file and start over.
 
 When you're done, save the file and quit the editor.
 
@@ -96,14 +109,29 @@ the remote servers. ::
 
     ./securedrop-admin install
 
-You will be prompted to enter the sudo password for the *Application* and
+You will be prompted to enter the sudo passphrase for the *Application* and
 *Monitor Servers* (which should be the same).
 
 The install process will take some time, and it will return
-the terminal to you when it is complete. If an error occurs while
-running the install, please submit a detailed `GitHub
+the terminal to you when it is complete.
+
+If an error occurs while
+running the install, please check all of the details of the error output.
+
+.. include:: includes/rerun-install-is-safe.txt
+
+If needed, make edits to the file located at
+``install_files/ansible-base/group_vars/all/site-specific``
+as described above. If you continue to have issues please submit a detailed `GitHub
 issue <https://github.com/freedomofpress/securedrop/issues/new>`__ or
 send an email to securedrop@freedom.press.
+
+.. note::
+   The SecureDrop install process configures a custom Linux kernel hardened
+   with the grsecurity patch set. Only binary images are hosted in the apt
+   repo. For source packages, see the `Source Offer`_.
+
+.. _`Source Offer`: https://github.com/freedomofpress/securedrop/blob/develop/SOURCE_OFFER
 
 Once the installation is complete, the addresses for each Tor Hidden
 Service will be available in the following files under
@@ -123,5 +151,3 @@ Service will be available in the following files under
 The dynamic inventory file will automatically read the Onion URLs for SSH
 from the ``app-ssh-aths`` and ``mon-ssh-aths`` files, and use them to connect
 to the servers during subsequent playbook runs.
-
-.. |Custom notification| image:: images/install/custom-notification.png

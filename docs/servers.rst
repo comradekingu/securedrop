@@ -13,26 +13,53 @@ Install Ubuntu
   with, but we **strongly** encourage you to read and follow this documentation
   exactly as there are some "gotchas" that may cause your SecureDrop set up to break.
 
-The *Admin Workstation*, running Tails, should be used to download and verify
-Ubuntu Server.  The *Application Server* and the *Monitor Server* specifically
-require the 64-bit version of `Ubuntu Server 14.04.5 LTS (Trusty Tahr)
-<http://releases.ubuntu.com/14.04/ubuntu-14.04.5-server-amd64.iso>`__. The image you want to get
-is named ``ubuntu-14.04.5-server-amd64.iso``. In order to verify the
-installation media, you should also download the files named ``SHA256SUMS`` and
-``SHA256SUMS.gpg``.
+The SecureDrop *Application Server* and *Monitor Server* run **Ubuntu Server
+14.04.5 LTS (Trusty Tahr)**. To install Ubuntu on the servers, you must first
+download and verify the Ubuntu installation media. You should use the *Admin
+Workstation* to download and verify the Ubuntu installation media.
 
-.. note:: Downloading Ubuntu over Tails may take a very long time because it's
-          being done over Tor.
+Download the Ubuntu installation media
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The installation media and the files required to verify it are available on the
+`Ubuntu Releases page`_. You will need to download the following files:
+
+* `ubuntu-14.04.5-server-amd64.iso`_
+* `SHA256SUMS`_
+* `SHA256SUMS.gpg`_
+
+If you're reading this documentation in the Tor Browser on the *Admin
+Workstation*, you can just click the links above and follow the prompts to save
+them to your Admin Workstation. We recommend saving them to the
+``/home/amnesia/Persistent/Tor Browser`` directory on the *Admin Workstation*,
+because it can be useful to have a copy of the installation media readily
+available.
+
+Alternatively, you can use the command line:
+
+.. code:: sh
+
+   cd ~/Persistent
+   torify curl -OOO http://releases.ubuntu.com/14.04.5/{ubuntu-14.04.5-server-amd64.iso,SHA256SUMS{,.gpg}}
+
+.. note:: Downloading Ubuntu on the *Admin Workstation* can take a while
+   because Tails does everything over Tor, and Tor is typically slow relative
+   to the speed of your upstream Internet conenction.
+
+.. _Ubuntu Releases page: http://releases.ubuntu.com/
+.. _ubuntu-14.04.5-server-amd64.iso: http://releases.ubuntu.com/14.04.5/ubuntu-14.04.5-server-amd64.iso
+.. _SHA256SUMS: http://releases.ubuntu.com/14.04.5/SHA256SUMS
+.. _SHA256SUMS.gpg: http://releases.ubuntu.com/14.04.5/SHA256SUMS.gpg
 
 Verify the Ubuntu installation media
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, you should verify the Ubuntu image you downloaded hasn't been modified by
+You should verify the Ubuntu image you downloaded hasn't been modified by
 a malicious attacker or otherwise corrupted. We can do so by checking its
 integrity with cryptographic signatures and hashes.
 
 First, we will download *Ubuntu Image Signing Key* and verify its
-*fingerprint*. ::
+fingerprint. ::
 
     gpg --recv-key "C598 6B4F 1257 FFA8 6632 CBA7 4618 1433 FBB7 5451"
 
@@ -119,7 +146,7 @@ Configure the network manually
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Ubuntu installer will try to autoconfigure networking for the server
-you are setting up; however, SecureDrop 0.3 requires manual network
+you are setting up; however, SecureDrop requires manual network
 configuration. You can hit **Cancel** at any point during network
 autoconfiguration to be given the choice to *Configure the network
 manually*.
@@ -127,7 +154,7 @@ manually*.
 If network autoconfiguration completes before you can do this, the next
 window will ask for your hostname. To get back to the choice of
 configuring the network manually, **Cancel** the step that asks you to
-set a hostname and choose the manu option that says **Configure the
+set a hostname and choose the menu option that says **Configure the
 network manually** instead.
 
 For a production install with a pfSense network firewall in place, the
@@ -137,31 +164,9 @@ the settings you choose are unique on the firewall's network and
 remember to propagate your choices through the rest of the installation
 process.
 
-Below are two configurations you should enter, assuming you used the
-network settings from the network firewall guide. If you did not, adjust
-these settings accordingly.
-
-**3 NIC Firewall**
-
--  *Application Server*:
-
-   -  Server IP address: 10.20.1.2
-   -  Netmask (default is fine): 255.255.255.0
-   -  Gateway: 10.20.1.1
-   -  For DNS, use Google's name servers: 8.8.8.8 and 8.8.4.4
-   -  Hostname: app
-   -  Domain name should be left blank
-
--  *Monitor Server*:
-
-   -  Server IP address: 10.20.2.2
-   -  Netmask (default is fine): 255.255.255.0
-   -  Gateway: 10.20.2.1
-   -  For DNS, use Google's name servers: 8.8.8.8 and 8.8.4.4
-   -  Hostname: mon
-   -  Domain name should be left blank
-
-**4 NIC Firewall**
+Below are the configurations you should enter, assuming you used the
+network settings from the network firewall guide for the recommended 4 NIC
+firewall. If you did not, adjust these settings accordingly.
 
 -  *Application Server*:
 
@@ -184,10 +189,10 @@ these settings accordingly.
 Continue the installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can choose whatever username and password you would like. To make
-things easier later you should use the same username and same password
-on both servers (but not the same password as username). Make sure to
-save this password in your admin KeePassX database afterwards.
+You can choose whatever username and passphrase you would like. To make
+things easier later you should use the same username and same passphrase
+on both servers (but not the same passphrase as username). Make sure to
+save this passphrase in your admin KeePassX database afterwards.
 
 Click 'no' when asked to encrypt the home directory. Then configure your
 time zone.
@@ -210,8 +215,8 @@ information on them stays private in case they are seized or stolen.
 While FDE can be useful in some cases, we currently do not recommend
 that you enable it because there are not many scenarios where it will be
 a net security benefit for SecureDrop operators. Doing so will introduce
-the need for more passwords and add even more responsibility on the
-administrator of the system (see `this GitHub
+the need for more passphrases and add even more responsibility on the
+admin of the system (see `this GitHub
 issue <https://github.com/freedomofpress/securedrop/issues/511#issuecomment-50823554>`__
 for more information).
 
@@ -220,7 +225,7 @@ installation option that says *Guided - use entire disk and set up LVM*.
 
 However, if you decide to go ahead and enable FDE, please note that
 doing so means SecureDrop will become unreachable after an automatic
-reboot. An administrator will need to be on hand to enter the password
+reboot. An admin will need to be on hand to enter the passphrase
 in order to decrypt the disks and complete the startup process, which
 will occur anytime there is an automatic software update, and also
 several times during SecureDrop's installation. We recommend that the
@@ -229,8 +234,8 @@ receive an alert when the system becomes unavailable.
 
 To enable FDE, select *Guided - use entire disk and set up encrypted
 LVM* during the disk partitioning step and write the changes to disk.
-Follow the recommendations as to choosing a strong password. As the
-administrator, you will be responsible for keeping this passphrase safe.
+Follow the recommendations as to choosing a strong passphrase. As the
+admin, you will be responsible for keeping this passphrase safe.
 Write it down somewhere and memorize it if you can. **If inadvertently
 lost it could result in total loss of the SecureDrop system.**
 
@@ -267,9 +272,6 @@ When the packages are finished installing, Ubuntu will automatically
 install the bootloader (GRUB). If it asks to install the bootloader to
 the Master Boot Record, choose **Yes**. When everything is done, reboot.
 
-You can now return to where you left off in the main SecureDrop install
-guide :doc:`by clicking here <servers>`.
-
 .. |Ubuntu Server| image:: images/install/ubuntu_server.png
 
 Save the Configurations
@@ -279,7 +281,9 @@ When you are done, make sure you save the following information:
 
 -  The IP address of the *Application Server*
 -  The IP address of the *Monitor Server*
--  The non-root user's name and password for the servers.
+-  The non-root user's name and passphrase for the servers.
+
+.. _test_connectivity:
 
 Test Connectivity
 -----------------
@@ -290,7 +294,7 @@ Workstation to both of the servers before continuing with the
 installation.
 
 In a terminal, verify that you can SSH into both servers,
-authenticating with your password:
+authenticating with your passphrase:
 
 .. code:: sh
 
@@ -306,7 +310,7 @@ Set up SSH keys
 ---------------
 
 Ubuntu's default SSH configuration authenticates users with their
-passwords; however, public key authentication is more secure, and once
+passphrases; however, public key authentication is more secure, and once
 it's set up it is also easier to use. In this section, we will create
 a new SSH key for authenticating to both servers. Since the Admin Live
 USB was set up with `SSH Client Persistence`_, this key will be saved
@@ -321,30 +325,17 @@ First, generate the new SSH keypair:
 
     ssh-keygen -t rsa -b 4096
 
-You'll be asked to "enter file in which to save the key." Type
+You'll be asked to "Enter file in which to save the key" Type
 **Enter** to use the default location.
 
-If you choose to passphrase-protect this key, you must use a strong,
-diceword-generated, passphrase that you can manually type (as Tails'
-pinentry will not allow you to copy and paste a passphrase). It is also
-acceptable to leave the passphrase blank in this case.
-
-.. todo:: Not sure if we should encourage people to put a passphrase
-          on this key. It's already on the encrypted persistence of a
-          Tails USB, so by the same logic that we use to justify not
-          passphrase-protecting the GPG key on the *SVS*, this key
-          should not be passphrase protected either. It also reduces
-          credential juggling and is one less thing to
-          forget/lose/actually be a bad passphrase because we're
-          asking people to keep track of so many of them.
-
-	  I also tend to agree with Joanna Rutkowska that encrypted
-	  private keys are security theater
-	  (http://blog.invisiblethings.org/keys/).
+Given that this key is on the encrypted persistence of a Tails USB,
+you do not need to add an additional passphrase to protect the key.
+If you do elect to use a passphrase, note that you will need to manually
+type it (Tails' pinentry will not allow you to copy and paste a passphrase).
 
 Once the key has finished generating, you need to copy the public key
 to both servers. Use ``ssh-copy-id`` to copy the public key to each
-server, authenticating with your password:
+server, authenticating with your passphrase:
 
 .. code:: sh
 
@@ -361,31 +352,3 @@ the below commands. You should not be prompted for a passphrase
     app
     $ ssh <username>@<Monitor IP address> hostname
     mon
-
-Minor Admin Tasks
------------------
-
-DNS
-~~~
-
-The network firewall rules are set up to disable DNS traffic to the gateway,
-so if your system has not set nameservers, DNS queries will fail. You can
-test this by running ``host freedom.press``. If the host isn't found,
-or there is some other sort of failure, check the pfSense logs. You may see
-UDP traffic to the gateway on port 53 being blocked.
-
-If this is the case, you need add the following lines to ``/etc/resolvconf/resolv.conf.d/tail``
-
-.. code::
-
-    nameserver 8.8.8.8
-    nameserver 8.8.4.4
-
-Then run ``sudo dpkg-reconfigure resolvconf``. This will update ``/etc/resolv.conf``
-to include the new name servers. Verify that ``host freedom.press`` succeeds.
-
-System Date
-~~~~~~~~~~~
-
-The ``ansible`` playbooks you will run later depend on the system clock
-being set accurately, so run ``sudo ntpdate`` on both servers.

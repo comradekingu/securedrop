@@ -1,3 +1,5 @@
+.. _ossec_guide:
+
 OSSEC Guide
 ===========
 
@@ -66,7 +68,7 @@ For first-time installs, you can use the
 - Password of the email used to send OSSEC alerts: ``sasl_password``
 
 If you don't know what value to enter for one of these, please ask your
-organization's email administrator for the full configuration before
+organization's email admin for the full configuration before
 proceeding. It is better to get these right the first time rather than
 changing them after SecureDrop is installed. If you're not sure of the
 correct ``smtp_relay_port`` number, you can use a simple mail client
@@ -140,7 +142,7 @@ will retrieve and format the fingerprint per our requirements: ::
 
 Next you specify the e-mail that you'll be sending alerts to, as
 ``ossec_alert_email``. This could be your work email, or an alias for a
-group of IT administrators at your organization. It helps for your mail
+group of IT admins at your organization. It helps for your mail
 client to have the ability to filter the numerous messages from OSSEC
 into a separate folder.
 
@@ -491,21 +493,8 @@ Common OSSEC Alerts
 ~~~~~~~~~~~~~~~~~~~
 
 The SecureDrop *Application* and *Monitor Servers* reboot every night, as part
-of the unattended upgrades process. When the servers come back up, OSSEC will
-start again and report the change in status. Therefore you should receive an
-email alert every morning containing text similar to: ::
-
-    Received From: mon->ossec-monitord
-    Rule: 502 fired (level 3) -> "Ossec server started."
-    Portion of the log(s):
-
-    ossec: Ossec started.
-
-This is a normal alert, and informs you that the system is working as expected.
-
-Similarly, your SecureDrop Application and Monitoring Servers will
-check for application updates on your servers. Should your servers require
-updates, OSSEC will alarm because the packages binaries will have changed
+of the unattended upgrades process. Therefore, on nights where packages were updated,
+you should receive email alerts every morning indicating binaries have changed.
 Below is a sample alert, but you may see any number of these records in the
 logs. This will happen in batches so these emails might be longer than the
 below alert. You should also see them in an email named ``Daily Report:
@@ -518,7 +507,7 @@ can review the logs in ``/var/log/apt/history.log``. ::
 
     status installed <package name> <version>
 
-This is a normal alert, it tells you your system is up-to-date and patched.
+These are normal alerts, they tell you your system is up-to-date and patched.
 
 Occasionally your SecureDrop Servers will send an alert for failing to connect
 to Tor relays. Since SecureDrop runs as a Tor Onion Service, it is possible

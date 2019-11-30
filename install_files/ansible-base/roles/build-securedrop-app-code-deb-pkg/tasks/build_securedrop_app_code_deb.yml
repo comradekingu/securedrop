@@ -13,7 +13,7 @@
 
 - name: Copy install_files/securedrop-app-code dir to build path.
   synchronize:
-    src: ../securedrop-app-code/
+    src: "{{ role_path }}/../../../securedrop-app-code/"
     dest: "{{ securedrop_app_code_deb_dir }}"
     delete: yes
     recursive: yes
@@ -23,7 +23,7 @@
 
 - name: Copy app code to build directory.
   synchronize:
-    src: ../../securedrop/
+    src: "{{ role_path }}/../../../../securedrop/"
     dest: "{{ securedrop_code_filtered }}"
     recursive: yes
     delete: yes
@@ -35,9 +35,11 @@
 - name: Create pip wheel archive for Debian package requirements.
   command: >
     pip wheel
-    -r {{ securedrop_code_filtered }}/requirements/securedrop-requirements.txt
+    -r {{ securedrop_code_filtered }}/requirements/securedrop-app-code-requirements.txt
     -w {{ securedrop_app_code_deb_dir }}/var/securedrop/wheelhouse
   tags: pip
+
+- include: translations.yml
 
 - name: Create apparmor.d directory in build path.
   file:

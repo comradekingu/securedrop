@@ -7,7 +7,11 @@ USB* to access the Network Firewall's web interface for configuration.
 
 Unfortunately, due to the wide variety of firewalls that may be used, we
 do not provide specific instructions to cover every type or variation in
-software or hardware. This guide is based on pfSense, and assumes your
+software or hardware.
+However, if you have the necessary
+expertise, we provide `abstract firewall rules`_ that can be
+implemented with iptables, Cisco IOS etc.
+This guide is based on pfSense, and assumes your
 firewall hardware has at least three interfaces: WAN, LAN, and OPT1. For
 hardware, you can build your own network firewall (not covered in this
 guide) and `install
@@ -167,7 +171,7 @@ Connect to the pfSense WebGUI
    |Your Connection is Insecure|
 
 #. You should see the login page for the pfSense GUI. Log in with the
-   default username and password (``admin`` / ``pfsense``).
+   default username and passphrase (``admin`` / ``pfsense``).
 
    |Default pfSense|
 
@@ -203,7 +207,7 @@ Setup Wizard
 
    |Configure LAN Interface|
 
-#. Set a strong admin password. We recommend generating a strong password
+#. Set a strong admin passphrase. We recommend generating a strong passphrase
    with KeePassX, and saving it in the Tails Persistent folder using the
    provided KeePassX database template. Click **Next**.
 
@@ -245,10 +249,6 @@ Internet through the WAN. The easiest way to do this is to use ping
 that you expect to be up (e.g. ``google.com``) and click "Ping".
 
 |Ping|
-
-At this stage, you can elect to manually set up your firewall, or use templates
-we provide. We recommend using the templates, and if you have trouble you can
-step through the manual configuration to configure the firewall.
 
 Disable DHCP on the LAN
 -----------------------
@@ -338,11 +338,11 @@ reconnect. You should see a popup notification that says "Connection
 Established", followed several seconds later by the "Tor is ready"
 popup notification.
 
-For the next step, SecureDrop Configuration, you can elect to manually configure
-your firewall using the WebGUI, or you can load the templates we provide.
+For the next step, SecureDrop Configuration, you will manually configure the
+firewall for SecureDrop, using screenshots or XML templates as a reference.
 
-SecureDrop Configuration (Manual)
----------------------------------
+SecureDrop Configuration
+------------------------
 
 SecureDrop uses the firewall to achieve two primary goals:
 
@@ -420,8 +420,8 @@ Make aliases for the following:
 - ``admin_workstation``: ``10.20.1.2``
 - ``app_server``: ``10.20.2.2``
 - ``external_dns_servers``: ``8.8.8.8, 8.8.4.4``
-- ``local_servers``: ``app_server, monitor_server``
 - ``monitor_server``: ``10.20.3.2``
+- ``local_servers``: ``app_server, monitor_server``
 
 |Add Firewall Alias|
 
@@ -469,26 +469,20 @@ to add a rule.
 Once you've set up the firewall, exit the Unsafe Browser, and continue
 with the "Keeping pfSense up to date" section below.
 
-SecureDrop Configuration (Templates)
-------------------------------------
+Configuration Reference Templates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alternatively, you can load the provided ``.xml`` templates.
-
-First navigate to **Diagnostics ▸ Backup & Restore**:
-
-|Backup & Restore|
-
-Scroll down to "Restore Backup" and install each one of the template files for
-**Restore Areas** Interfaces, Aliases, and Firewall Rules, in that order:
+As an alternative to the provided screenshots, you can examine the provided
+``.xml`` templates as a reference:
 
 - Interfaces config: ``install_files/network_firewall/interfaces-config-pfSense.xml``
 - Aliases: ``install_files/network_firewall/aliases-config-pfSense.xml``
 - Firewall rules: ``install_files/network_firewall/filter-config-pfSense.xml``
 
-Note that none of the template filters are encrypted. Click "Restore Configuration"
-to restore each file. After this is done, verify that the rules have been configured
-properly by comparing your settings with the screenshots above. If so, proceed to
-the next section.
+.. note:: These will not load using pfSense Restore and are here as a reference
+          only. See `GitHub #2282`_ for more info.
+
+.. _`GitHub #2282`: https://github.com/freedomofpress/securedrop/pull/2282
 
 Tips for setting up pfSense Firewall Rules
 ------------------------------------------
@@ -523,7 +517,7 @@ Keeping pfSense up to date
 
 Periodically, the pfSense project maintainers release an update to the
 pfSense software running on your firewall. You will be notified by the
-appearance of bold red text saying "Update available" in the **Version**
+appearance of text saying that there is a new version in the **Version**
 section of the "Status: Dashboard" page (the home page of the WebGUI).
 
 |Update available|
@@ -538,25 +532,20 @@ tag <https://www.netgate.com/blog/category.html#releases>`__.
 
 .. _RSS feed: https://www.netgate.com/feed.xml
 
-To install the update, click the "click here" link next to "Update
-available". We recommend checking the "perform full backup prior to
-upgrade" box in case something goes wrong. Click "Invoke auto upgrade".
+To install the update, click the Download icon next to the update then click
+the "Confirm" button:
 
-|Invoke auto upgrade|
+|Firewall Update Confirmation|
 
-You will see a blank page with a spinning progress indicator in the
-browser tab while pfSense performs the backup prior to upgrade. This
-typically takes a few minutes. Once that's done, you will see a page
-with a progress bar at the top that will periodically update as the
-upgrade progresses. Wait for the upgrade to complete, which may take a
-while depending on the speed of your network.
+You will see a page with a progress bar while pfSense performs the upgrade:
 
-.. note:: In a recent test, the progress page did not successfully
-	  update itself as the upgraded progressed. After waiting for
-	  some time, we refreshed the page and found that the upgrade
-	  had completed successfully. If your upgrade is taking longer
-	  than expected or not showing any progress, try refreshing
-	  the page.
+|Firewall Update Progress|
+
+.. note:: This may take a while, so be patient!
+
+Once it is complete, you will see a notification of successful upgrade:
+
+|Firewall Update Complete|
 
 .. |Wired Connected| image:: images/firewall/wired_connected.png
 .. |Your Connection is Insecure| image:: images/firewall/your_connection_is_insecure.png
@@ -586,9 +575,32 @@ while depending on the speed of your network.
 .. |Firewall IP Aliases Pre Save| image:: images/firewall/ip_aliases_pre_save.png
 .. |Firewall IP Aliases Post Save| image:: images/firewall/ip_aliases_post_save.png
 .. |Port Aliases| image:: images/firewall/port_aliases.png
-.. |Invoke auto upgrade| image:: images/firewall/invoke_auto_upgrade.png
-.. |Backup & Restore| image:: images/firewall/backup_and_restore.png
+.. |Firewall Update Confirmation| image:: images/firewall/system_update.png
+.. |Firewall Update Progress| image:: images/firewall/system_is_updating.png
+.. |Firewall Update Complete| image:: images/firewall/system_update_complete.png
 
 .. [#] Tails screenshots were taken on Tails 3.0~beta4. Please make an issue on
        GitHub if you are using the most recent version of Tails and the
        interface is different from what you see here.
+
+.. _abstract firewall rules:
+
+Abstract firewall rules
+-----------------------
+
+The pfSense instructions using the web interface can also be precisely
+described as follows:
+
+* Disable DHCP (in case the firewall is providing a DHCP server by default)
+* Disallow all traffic by default (inbound or outbound)
+* Allow UDP OSSEC (port 1514) from *Application Server* to *Monitor Server*
+* Allow TCP ossec agent auth (port 1515) from *Application Server* to *Monitor Server*
+* Allow TCP/UDP DNS from *Application Server* and *Monitor Server* to the IPs of known name servers
+* Allow UDP NTP from *Application Server* and *Monitor Server* to all
+* Allow TCP any port from *Application Server* and *Monitor Server* to all (this is needed for making connections to the Tor network)
+* Allow TCP 80/443 from *Admin Workstation* to all (in case there is a need to access the web interface of the firewall)
+* Allow TCP ssh from *Admin Workstation* to *Application Server* and *Monitor Server*
+* Allow TCP any port from *Admin Workstation* to all
+
+This can be implemented with iptables, Cisco IOS etc. if you have the
+necessary expertise.

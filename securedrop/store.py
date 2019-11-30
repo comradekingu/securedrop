@@ -5,9 +5,8 @@ import config
 import zipfile
 import crypto_util
 import tempfile
-import subprocess
 import gzip
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 from secure_tempfile import SecureTemporaryFile
 
@@ -78,6 +77,7 @@ def get_bulk_archive(selected_submissions, zip_directory=''):
     # folder structure per #383
     with zipfile.ZipFile(zip_file, 'w') as zip:
         for source in sources:
+            fname = ""
             submissions = [s for s in selected_submissions
                            if s.source.journalist_designation == source]
             for submission in submissions:
@@ -85,9 +85,12 @@ def get_bulk_archive(selected_submissions, zip_directory=''):
                                 submission.filename)
                 verify(filename)
                 document_number = submission.filename.split('-')[0]
+                if zip_directory == submission.source.journalist_filename:
+                    fname = zip_directory
+                else:
+                    fname = os.path.join(zip_directory, source)
                 zip.write(filename, arcname=os.path.join(
-                    zip_directory,
-                    source,
+                    fname,
                     "%s_%s" % (document_number,
                                submission.source.last_updated.date()),
                     os.path.basename(filename)
@@ -95,7 +98,8 @@ def get_bulk_archive(selected_submissions, zip_directory=''):
     return zip_file
 
 
-def save_file_submission(sid, count, journalist_filename, filename, stream):
+def save_file_submission(filesystem_id, count, journalist_filename, filename,
+                         stream):
     sanitized_filename = secure_filename(filename)
 
     # We store file submissions in a .gz file for two reasons:
@@ -114,7 +118,7 @@ def save_file_submission(sid, count, journalist_filename, filename, stream):
     encrypted_file_name = "{0}-{1}-doc.gz.gpg".format(
         count,
         journalist_filename)
-    encrypted_file_path = path(sid, encrypted_file_name)
+    encrypted_file_path = path(filesystem_id, encrypted_file_name)
     with SecureTemporaryFile("/tmp") as stf:
         with gzip.GzipFile(filename=sanitized_filename,
                            mode='wb', fileobj=stf) as gzf:
@@ -131,14 +135,15 @@ def save_file_submission(sid, count, journalist_filename, filename, stream):
     return encrypted_file_name
 
 
-def save_message_submission(sid, count, journalist_filename, message):
+def save_message_submission(filesystem_id, count, journalist_filename,
+                            message):
     filename = "{0}-{1}-msg.gpg".format(count, journalist_filename)
-    msg_loc = path(sid, filename)
+    msg_loc = path(filesystem_id, filename)
     crypto_util.encrypt(message, config.JOURNALIST_KEY, msg_loc)
     return filename
 
 
-def rename_submission(sid, orig_filename, journalist_filename):
+def rename_submission(filesystem_id, orig_filename, journalist_filename):
     check_submission_name = VALIDATE_FILENAME(orig_filename)
     if check_submission_name:
         parsed_filename = check_submission_name.groupdict()
@@ -147,24 +152,10 @@ def rename_submission(sid, orig_filename, journalist_filename):
                 parsed_filename['index'], journalist_filename,
                 parsed_filename['file_type'])
             try:
-                os.rename(path(sid, orig_filename), path(sid, new_filename))
+                os.rename(path(filesystem_id, orig_filename),
+                          path(filesystem_id, new_filename))
             except OSError:
                 pass
             else:
                 return new_filename  # Only return new filename if successful
     return orig_filename
-
-
-def secure_unlink(fn, recursive=False):
-    verify(fn)
-    command = ['srm']
-    if recursive:
-        command.append('-r')
-    command.append(fn)
-    subprocess.check_call(command)
-    return "success"
-
-
-def delete_source_directory(source_id):
-    secure_unlink(path(source_id), recursive=True)
-    return "success"

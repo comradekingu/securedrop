@@ -1,20 +1,24 @@
 import tempfile
+import time
 
 from selenium.webdriver.common.action_chains import ActionChains
+from step_helpers import screenshots
 
 
-class SourceNavigationSteps():
+class SourceNavigationStepsMixin():
 
+    @screenshots
     def _source_visits_source_homepage(self):
         self.driver.get(self.source_location)
 
-        assert ("SecureDrop | Protecting Journalists and Sources" ==
-                self.driver.title)
+        if not hasattr(self, 'accept_languages'):
+            assert ("SecureDrop | Protecting Journalists and Sources" ==
+                    self.driver.title)
 
-    def _source_chooses_to_submit_documents(self):
+    def _source_clicks_submit_documents_on_homepage(self):
         # First move the cursor to a known position in case it happens to
         # be hovering over one of the buttons we are testing below.
-        header_image = self.driver.find_element_by_id('header')
+        header_image = self.driver.find_element_by_css_selector('.header')
         ActionChains(self.driver).move_to_element(header_image).perform()
 
         # It's the source's first time visiting this SecureDrop site, so they
@@ -40,11 +44,35 @@ class SourceNavigationSteps():
         # The source clicks the submit button.
         submit_button.click()
 
+    @screenshots
+    def _source_chooses_to_submit_documents(self):
+        self._source_clicks_submit_documents_on_homepage()
+
         codename = self.driver.find_element_by_css_selector('#codename')
 
         assert len(codename.text) > 0
         self.source_name = codename.text
 
+    def _source_shows_codename(self):
+        content = self.driver.find_element_by_id('codename-hint-content')
+        assert not content.is_displayed()
+        self.driver.find_element_by_id('codename-hint-show').click()
+        assert content.is_displayed()
+        content_content = self.driver.find_element_by_css_selector(
+                '#codename-hint-content p')
+        assert content_content.text == self.source_name
+
+    def _source_hides_codename(self):
+        content = self.driver.find_element_by_id('codename-hint-content')
+        assert content.is_displayed()
+        self.driver.find_element_by_id('codename-hint-hide').click()
+        assert not content.is_displayed()
+
+    def _source_sees_no_codename(self):
+        codename = self.driver.find_elements_by_css_selector('.code-reminder')
+        assert len(codename) == 0
+
+    @screenshots
     def _source_chooses_to_login(self):
         self.driver.find_element_by_id('login-button').click()
 
@@ -53,14 +81,17 @@ class SourceNavigationSteps():
 
         assert len(logins) > 0
 
+    @screenshots
     def _source_hits_cancel_at_login_page(self):
         self.driver.find_element_by_id('cancel').click()
 
         self.driver.get(self.source_location)
 
-        assert ("SecureDrop | Protecting Journalists and Sources" ==
-                self.driver.title)
+        if not hasattr(self, 'accept_languages'):
+            assert ("SecureDrop | Protecting Journalists and Sources" ==
+                    self.driver.title)
 
+    @screenshots
     def _source_proceeds_to_login(self):
         codename_input = self.driver.find_element_by_id(
             'login-with-existing-codename')
@@ -69,15 +100,28 @@ class SourceNavigationSteps():
         continue_button = self.driver.find_element_by_id('login')
         continue_button.click()
 
-        assert ("SecureDrop | Protecting Journalists and Sources" ==
-                self.driver.title)
+        if not hasattr(self, 'accept_languages'):
+            assert ("SecureDrop | Protecting Journalists and Sources" ==
+                    self.driver.title)
+        # Check that we've logged in
 
+        replies = self.driver.find_elements_by_id("replies")
+        assert len(replies) == 1
+
+    def _source_enters_codename_in_login_form(self):
+        codename_input = self.driver.find_element_by_id(
+            'login-with-existing-codename')
+        codename_input.send_keys('ascension hypertext concert synopses')
+
+    @screenshots
     def _source_hits_cancel_at_submit_page(self):
         self.driver.find_element_by_id('cancel').click()
 
-        headline = self.driver.find_element_by_class_name('headline')
-        assert 'Submit Materials' == headline.text
+        if not hasattr(self, 'accept_languages'):
+            headline = self.driver.find_element_by_class_name('headline')
+            assert 'Submit Materials' == headline.text
 
+    @screenshots
     def _source_continues_to_submit_page(self):
         continue_button = self.driver.find_element_by_id('continue-button')
 
@@ -97,9 +141,11 @@ class SourceNavigationSteps():
 
         continue_button.click()
 
-        headline = self.driver.find_element_by_class_name('headline')
-        assert 'Submit Materials' == headline.text
+        if not hasattr(self, 'accept_languages'):
+            headline = self.driver.find_element_by_class_name('headline')
+            assert 'Submit Materials' == headline.text
 
+    @screenshots
     def _source_submits_a_file(self):
         with tempfile.NamedTemporaryFile() as file:
             file.write(self.secret_message)
@@ -120,26 +166,35 @@ class SourceNavigationSteps():
             assert toggled_submit_button_icon.is_displayed()
 
             submit_button.click()
+            self.wait_for_source_key(self.source_name)
 
+            if not hasattr(self, 'accept_languages'):
+                notification = self.driver.find_element_by_css_selector(
+                    '.success')
+                expected_notification = (
+                    'Thank you for sending this information to us')
+                assert expected_notification in notification.text
+
+    @screenshots
+    def _source_submits_a_message(self):
+        self._source_enters_text_in_message_field()
+        self._source_clicks_submit_button_on_submission_page()
+
+        if not hasattr(self, 'accept_languages'):
             notification = self.driver.find_element_by_css_selector(
                 '.success')
-            expected_notification = (
-                'Thank you for sending this information to us')
-            assert expected_notification in notification.text
+            assert 'Thank' in notification.text
 
-    def _source_submits_a_message(self):
+    def _source_enters_text_in_message_field(self):
         text_box = self.driver.find_element_by_css_selector('[name=msg]')
-        # send_keys = type into text box
         text_box.send_keys(self.secret_message)
 
+    def _source_clicks_submit_button_on_submission_page(self):
         submit_button = self.driver.find_element_by_id('submit-doc-button')
         submit_button.click()
+        self.wait_for_source_key(self.source_name)
 
-        notification = self.driver.find_element_by_css_selector(
-            '.success')
-        assert ('Thank you for sending this information to us' in
-                notification.text)
-
+    @screenshots
     def _source_deletes_a_journalist_reply(self):
         # Get the reply filename so we can use IDs to select the delete buttons
         reply_filename_element = self.driver.find_element_by_name(
@@ -156,10 +211,36 @@ class SourceNavigationSteps():
         assert confirm_button.is_displayed()
         confirm_button.click()
 
-        notification = self.driver.find_element_by_class_name('notification')
-        assert 'Reply deleted' in notification.text
+        if not hasattr(self, 'accept_languages'):
+            notification = self.driver.find_element_by_class_name(
+                'notification')
+            assert 'Reply deleted' in notification.text
 
+    @screenshots
     def _source_logs_out(self):
         self.driver.find_element_by_id('logout').click()
+        assert self.driver.find_element_by_css_selector('.important')
+
+    def _source_not_found(self):
+        self.driver.get(self.source_location + "/unlikely")
+        message = self.driver.find_element_by_id('page-not-found')
+        assert message.is_displayed()
+
+    def _source_visits_use_tor(self):
+        self.driver.get(self.source_location + "/use-tor")
+
+    def _source_tor2web_warning(self):
+        self.driver.get(self.source_location + "/tor2web-warning")
+
+    def _source_why_journalist_key(self):
+        self.driver.get(self.source_location + "/why-journalist-key")
+
+    def _source_waits_for_session_to_timeout(self, session_length_minutes):
+        time.sleep(session_length_minutes * 60 + 0.1)
+
+    def _source_sees_session_timeout_message(self):
         notification = self.driver.find_element_by_css_selector('.important')
-        assert 'Thank you for exiting your session!' in notification.text
+
+        if not hasattr(self, 'accept_languages'):
+            expected_text = 'Your session timed out due to inactivity.'
+            assert expected_text in notification.text

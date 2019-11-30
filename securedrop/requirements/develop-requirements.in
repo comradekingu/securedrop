@@ -1,10 +1,14 @@
-# Temporary peg until issue #1146 is resolved
-ansible==2.2.1
 boto
+docker-py
 flake8
-pip-tools
+html-linter
+molecule>=2.*
+pip-tools>=1.10
+pylint
 pytest-xdist
-testinfra
+safety
 sphinx
 sphinx-autobuild
 sphinx_rtd_theme
+testinfra
+yamllint

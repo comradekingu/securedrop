@@ -8,13 +8,16 @@ securedrop_test_vars = pytest.securedrop_test_vars
 wanted_apache_headers = [
   'Header edit Set-Cookie ^(.*)$ $1;HttpOnly',
   'Header always append X-Frame-Options: DENY',
+  'Header set Referrer-Policy "no-referrer"',
   'Header set X-XSS-Protection: "1; mode=block"',
   'Header set X-Content-Type-Options: nosniff',
   'Header set X-Download-Options: noopen',
   "Header set X-Content-Security-Policy: \"default-src 'self'\"",
   "Header set Content-Security-Policy: \"default-src 'self'\"",
+  'Header set Referrer-Policy "no-referrer"',
   'Header unset Etag',
 ]
+
 
 # Test is not DRY; haven't figured out how to parametrize on
 # multiple inputs, so explicitly redeclaring test logic.
@@ -30,6 +33,7 @@ def test_apache_headers_journalist_interface(File, header):
     assert oct(f.mode) == "0644"
     header_regex = "^{}$".format(re.escape(header))
     assert re.search(header_regex, f.content, re.M)
+
 
 # Block of directory declarations for Apache vhost is common
 # to both Source and Journalist interfaces. Hardcoding these values
@@ -75,8 +79,10 @@ common_apache2_directory_declarations = """
 
 # declare journalist-specific apache configs
 @pytest.mark.parametrize("apache_opt", [
-  "<VirtualHost {}:8080>".format(securedrop_test_vars.apache_listening_address),
-  "WSGIDaemonProcess journalist processes=2 threads=30 display-name=%{{GROUP}} python-path={}".format(securedrop_test_vars.securedrop_code),
+  "<VirtualHost {}:8080>".format(
+      securedrop_test_vars.apache_listening_address),
+  "WSGIDaemonProcess journalist processes=2 threads=30 display-name=%{{GROUP}} python-path={}".format(  # noqa
+      securedrop_test_vars.securedrop_code),
   'WSGIProcessGroup journalist',
   'WSGIScriptAlias / /var/www/journalist.wsgi',
   'Header set Cache-Control "no-store"',
@@ -129,8 +135,8 @@ def test_apache_logging_journalist_interface(File, Command, Sudo):
     The actions of Journalists are logged by the system, so that an Admin can
     investigate incidents and track access.
 
-    Logs were broken for some period of time, logging only "combined" to the logfile,
-    rather than the combined LogFormat intended.
+    Logs were broken for some period of time, logging only "combined" to
+    the logfile, rather than the combined LogFormat intended.
     """
     # Sudo is necessary because /var/log/apache2 is mode 0750.
     with Sudo():
@@ -142,7 +148,7 @@ def test_apache_logging_journalist_interface(File, Command, Sudo):
             # validate the log entry.
             Command.check_output("curl http://127.0.0.1:8080")
 
-        assert f.size > 0 # Make sure something was logged.
+        assert f.size > 0  # Make sure something was logged.
         # LogFormat declaration was missing, so track regressions that log
         # just the string "combined" and nothing else.
         assert not f.contains("^combined$")

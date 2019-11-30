@@ -68,14 +68,14 @@ drive. This information will remain available to you even if you reboot
 Tails. (Tails securely erases all other data on every shutdown.)
 
 You will need to create a persistent storage on each Tails drive, with a
-unique password for each.
+unique passphrase for each.
 
 Please use the instructions on the `Tails website
 <https://tails.boum.org/doc/first_steps/persistence/index.en.html>`__
 to make the persistent volume on each Tails drive you create. When
 creating the persistence volume, you will be asked to select from a
-list of features, such as 'Personal Data'. We recommend that you
-enable **all** features.
+list of features, such as 'Personal Data'. You should enable **all** features by
+selecting each item in the list.
 
 Some other things to keep in mind:
 
